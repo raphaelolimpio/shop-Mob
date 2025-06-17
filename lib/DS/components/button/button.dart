@@ -25,11 +25,10 @@ class Button extends StatelessWidget {
 
     switch (viewModel.size) {
       case ButtonSize.small:
-        horizontalPadding =
-            10.0; // Reduzido para dar mais espaço ao texto (antes 12.0)
+        horizontalPadding = 10.0;
         verticalPadding = 6.0;
         iconSize = 16.0;
-        buttonWidth = 145; // Aumentado ligeiramente para 145 (antes 140)
+        buttonWidth = 145;
         textFontSize = 12.0;
         break;
       case ButtonSize.medium:

@@ -1,113 +1,243 @@
 import 'package:flutter/material.dart';
 import 'package:loja/DS/components/cards/card/card_view_model.dart';
+import 'package:loja/DS/components/reactiveTask/reactive_task.dart';
 import 'package:loja/DS/shared/color/colors.dart';
 import 'package:loja/DS/shared/style/style.dart';
-import 'package:intl/intl.dart';
+import 'package:loja/utils/service/cart_service.dart';
+import 'package:loja/utils/service/favorite_service.dart';
 
-class CustomCards extends StatelessWidget {
-  final CardViewMode viewModel;
+class ProductCard extends StatefulWidget {
+  final CardViewModel viewModel;
+  final double? cardWidth;
 
-  final double? cardWidth; // <- NOVO
+  const ProductCard({super.key, required this.viewModel, this.cardWidth});
 
-  const CustomCards({
-    super.key,
-    required this.viewModel,
-    this.cardWidth, // <- NOVO
-  });
+  @override
+  State<ProductCard> createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<ProductCard> {
+  late Future<bool> _isFavoritedFuture;
+  late Future<bool> _isInCartFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFavoriteStatus();
+    _checkCartStatus();
+  }
+
+  void _checkFavoriteStatus() {
+    setState(() {
+      _isFavoritedFuture = FavoriteService.isFavorite(widget.viewModel.id);
+    });
+  }
+
+  void _checkCartStatus() {
+    setState(() {
+      _isInCartFuture = CartService.isInCart(widget.viewModel.id);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormatter = NumberFormat.currency(
-      locale: 'pt_BR',
-      symbol: 'R\$',
-    );
-    final formattedValue = currencyFormatter.format(viewModel.value);
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Container(
+        width: double.infinity,
+        height: 600,
 
-    return SizedBox(
-      // <- ENVOLVA O CARD COM UM SIZEDBOX
-      width: cardWidth, // <- APLICA A LARGURA SE FORNEcida
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        elevation: 2.0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-        child: InkWell(
-          onTap: viewModel.onTap,
-          borderRadius: BorderRadius.circular(8.0),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: kGray300,
-                  backgroundImage:
-                      viewModel.imageUrl != null &&
-                              viewModel.imageUrl!.isNotEmpty
-                          ? NetworkImage(viewModel.imageUrl!)
-                          : null,
-                  child:
-                      viewModel.imageUrl == null || viewModel.imageUrl!.isEmpty
-                          ? Icon(Icons.shopping_bag, size: 30, color: kGray600)
-                          : null,
+        padding: const EdgeInsets.all(15.0),
+        decoration: BoxDecoration(
+          color: kFontColorWhite,
+          border: Border.all(color: kGray300),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: kGray500.withOpacity(0.08),
+              spreadRadius: 0,
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 2,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.network(
+                  widget.viewModel.image,
+                  height: 250,
+                  fit: BoxFit.contain,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value:
+                            loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          kPrimaryAppColor,
+                        ),
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 120,
+                      color: kGray200,
+                      child: const Icon(
+                        Icons.broken_image,
+                        color: kGray500,
+                        size: 50,
+                      ),
+                    );
+                  },
                 ),
-                const SizedBox(width: 16.0),
-                Expanded(
-                  // Este Expanded está ok, desde que o pai (Row) tenha largura definida
-                  child: Column(
+              ),
+            ),
+            const SizedBox(width: 32),
+            Expanded(
+              flex: 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        viewModel.title,
-                        style: normalStyle.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16.0,
-                          color: kFontColorBlack,
+                      Expanded(
+                        child: Text(
+                          widget.viewModel.title,
+                          style: headingStyle.copyWith(
+                            fontSize: 22.0,
+                            fontWeight: FontWeight.bold,
+                            color: kDeepNavyBlue3,
+                          ),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                      Text(
-                        viewModel.subtitle,
-                        style: smallStyle.copyWith(color: kGray700),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      FutureBuilder<bool>(
+                        future: _isFavoritedFuture,
+                        builder: (context, snapshot) {
+                          bool isFavorited = snapshot.data ?? false;
+                          return IconButton(
+                            icon: Icon(
+                              isFavorited
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: Colors.red,
+                            ),
+                            onPressed: () async {
+                              if (isFavorited) {
+                                final removedItem =
+                                    await FavoriteService.removeFavorite(
+                                      widget.viewModel.id,
+                                    );
+                                if (removedItem != null) {
+                                  ReactiveTask.showUndoSnackBar(
+                                    context: context,
+                                    message: 'Item removido dos favoritos.',
+                                    onUndo: () async {
+                                      await FavoriteService.addFavorite(
+                                        removedItem,
+                                      );
+                                      _checkFavoriteStatus();
+                                    },
+                                  );
+                                  _checkFavoriteStatus();
+                                }
+                              } else {
+                                await FavoriteService.addFavorite(
+                                  widget.viewModel.toPostModel(),
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Adicionado aos favoritos!'),
+                                  ),
+                                );
+                                _checkFavoriteStatus();
+                              }
+                            },
+                            tooltip: isFavorited ? 'Desfavoritar' : 'Favoritar',
+                          );
+                        },
+                      ),
+                      FutureBuilder<bool>(
+                        future: _isInCartFuture,
+                        builder: (context, snapshot) {
+                          bool isInCart = snapshot.data ?? false;
+                          return IconButton(
+                            icon: Icon(
+                              isInCart
+                                  ? Icons.shopping_cart
+                                  : Icons.shopping_cart_outlined,
+                              color: Colors.blue,
+                            ),
+                            onPressed: () async {
+                              if (isInCart) {
+                                final removedItem =
+                                    await CartService.removeFromCart(
+                                      widget.viewModel.id,
+                                    );
+                                if (removedItem != null) {
+                                  ReactiveTask.showUndoSnackBar(
+                                    context: context,
+                                    message: 'Item removido do carrinho.',
+                                    onUndo: () async {
+                                      await CartService.addToCart(removedItem);
+                                      _checkCartStatus();
+                                    },
+                                  );
+                                  _checkCartStatus();
+                                }
+                              } else {
+                                await CartService.addToCart(
+                                  widget.viewModel.toPostModel(),
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Adicionado ao carrinho!'),
+                                  ),
+                                );
+                                _checkCartStatus();
+                              }
+                            },
+                            tooltip:
+                                isInCart
+                                    ? 'Remover do carrinho'
+                                    : 'Adicionar ao carrinho',
+                          );
+                        },
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(width: 8.0),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      formattedValue,
-                      style: normalStyle.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: appNormalCyanColor,
-                      ),
+                  const SizedBox(height: 12),
+                  Text(
+                    widget.viewModel.category.toUpperCase(),
+                    style: normalStyle.copyWith(
+                      color: kGray700,
+                      fontSize: 12.0,
+                      letterSpacing: 0.5,
                     ),
-                    if (viewModel.onDecrease != null)
-                      IconButton(
-                        icon: const Icon(
-                          Icons.remove_circle_outline,
-                          color: kRed500,
-                        ),
-                        onPressed: viewModel.onDecrease,
-                        tooltip: 'Diminuir Quantidade',
-                      ),
-                  ],
-                ),
-                if (viewModel.onMoreOptions != null)
-                  IconButton(
-                    icon: const Icon(Icons.more_vert, color: kGray700),
-                    onPressed: viewModel.onMoreOptions,
-                    tooltip: 'Mais Opções',
                   ),
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    'R\$ ${widget.viewModel.price.toStringAsFixed(2)}',
+                    style: headingStyle.copyWith(fontSize: 18.0),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    widget.viewModel.description,
+                    style: smallStyle.copyWith(color: kGray600),
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

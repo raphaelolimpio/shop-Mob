@@ -1,7 +1,6 @@
-// lib/DS/shared/color/colors.dart (ATUALIZADO)
 import 'package:flutter/material.dart';
 
-// Palette: Cyan (Existing)
+// Palette: Cyan
 const Color kCyan50 = Color(0xffe0f7fa);
 const Color kCyan100 = Color(0xffb2ebf2);
 const Color kCyan200 = Color(0xff80deea);
@@ -14,14 +13,12 @@ const Color kCyan800 = Color(0xff00838f);
 const Color kCyan900 = Color(0xff006064);
 const Color kCyanBlack = Color.fromARGB(255, 2, 37, 37);
 
-// Cores Cyan específicas do seu código original - REVISADO PARA HARMONIA
+// palette: cyan
 const Color appCyanColor = Color.fromARGB(255, 8, 228, 228);
-const Color appCyannoramlColor = Color(
-  0xff00f3f3,
-); // Cor principal do Cyan, talvez renomear para kCyanPrimary?
+const Color appCyannoramlColor = Color(0xff00f3f3);
 const Color appCyanBlackColor = Color.fromARGB(255, 2, 37, 37);
 const Color appLightCyanColor = Color(0xff84ffff);
-const Color appNormalCyanColor = Color(0xff18ffff); // Usado em botões e AppBar
+const Color appNormalCyanColor = Color(0xff18ffff);
 const Color appDarkCyanColor = Color(0xff00e5ff);
 const Color appDarkCyanColor2 = Color(0xff00b8d4);
 
@@ -80,35 +77,24 @@ const Color kPinkColor = Color(0xfff50057);
 const Color kFontColorWhite = Colors.white;
 const Color kFontColorBlack = Colors.black;
 
-// --- NOVAS PALETAS ---
-
 // Deep Navy Blue
-const Color kDeepNavyBlue1 = Color(0xFF0A1128); // Muito escuro, quase preto
+const Color kDeepNavyBlue1 = Color(0xFF0A1128);
 const Color kDeepNavyBlue2 = Color(0xFF001F54);
-const Color kDeepNavyBlue3 = Color(
-  0xFF0F214A,
-); // Usado para backgrounds ou elementos principais
+const Color kDeepNavyBlue3 = Color(0xFF0F214A);
 
 // Elegant Golds
-const Color kElegantGold1 = Color(0xFFB8860B); // Goldenrod, mais terroso
-const Color kElegantGold2 = Color(0xFFDAA520); // Goldenrod claro
-const Color kElegantGold3 = Color(
-  0xFFC8AE7F,
-); // Dourado mais suave, bege metálico
-const Color kElegantGold4 = Color(0xFFE1AD01); // Dourado vibrante
+const Color kElegantGold1 = Color(0xFFB8860B);
+const Color kElegantGold2 = Color(0xFFDAA520);
+const Color kElegantGold3 = Color(0xFFC8AE7F);
+const Color kElegantGold4 = Color(0xFFE1AD01);
 
 // Soft Cream Tones
-const Color kSoftCream1 = Color(0xFFF5F5DC); // Beige
-const Color kSoftCream2 = Color(0xFFFDF5E6); // OldLace (bom para backgrounds)
-const Color kSoftCream3 = Color(
-  0xFFFAFAD2,
-); // LightGoldenrodYellow, levemente amarelado
-const Color kSoftCream4 = Color(0xFFFFFDD0); // Cream, puro
+const Color kSoftCream1 = Color(0xFFF5F5DC);
+const Color kSoftCream2 = Color(0xFFFDF5E6);
+const Color kSoftCream3 = Color(0xFFFAFAD2);
+const Color kSoftCream4 = Color(0xFFFFFDD0);
 
-// Uma cor principal para a AppBar e botões (pode ser um dos Navy Blues ou o Cyan se preferir contraste)
-// Decidi usar um dos Navy Blues para a AppBar e o botão de "Ver Todos os Produtos"
-const Color kPrimaryAppColor = kDeepNavyBlue2; // Ou kDeepNavyBlue3
-const Color kAccentColor = kElegantGold4; // Dourado para destaque
+const Color kPrimaryAppColor = kDeepNavyBlue2;
+const Color kAccentColor = kElegantGold4;
 
-// Cor de fundo geral, se aplicável
-const Color kBackgroundColor = kSoftCream2; // Ex: OldLace para um fundo suave
+const Color kBackgroundColor = kSoftCream2;

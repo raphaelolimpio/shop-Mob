@@ -1,10 +1,11 @@
-// lib/screens/products/products_screen.dart
 import 'package:flutter/material.dart';
 import 'package:loja/DS/components/appBar/appBar_custom.dart';
-
 import 'package:loja/DS/components/cards/card_curstom2/custom_card2_view_model.dart';
 import 'package:loja/DS/components/cards/enum/card_enums.dart';
 import 'package:loja/DS/components/cards/listCard/list_card_custom.dart';
+import 'package:loja/DS/components/loading/loading.dart';
+import 'package:loja/DS/shared/color/colors.dart';
+import 'package:loja/screens/detal_screen.dart';
 
 import 'package:loja/utils/api/Api_Service.dart';
 import 'package:loja/utils/post/post_model.dart';
@@ -14,7 +15,7 @@ class ProductAllScreen extends StatefulWidget {
   const ProductAllScreen({super.key});
 
   @override
-  State<ProductAllScreen> createState() => _ProductAllScreenState(); // _ProductsAllScreenState();
+  State<ProductAllScreen> createState() => _ProductAllScreenState();
 }
 
 class _ProductAllScreenState extends State<ProductAllScreen> {
@@ -26,14 +27,13 @@ class _ProductAllScreenState extends State<ProductAllScreen> {
   @override
   void initState() {
     super.initState();
-
+    Loading(color: kBlueColor);
     _fetchProducts();
     _categoriesFuture = ProductService.getAllCategories();
   }
 
   void _fetchProducts() {
     setState(() {
-      // Chame o método do ProductService
       _productsFuture = ProductService.getProducts(category: _selectedCategory);
     });
   }
@@ -41,6 +41,7 @@ class _ProductAllScreenState extends State<ProductAllScreen> {
   List<CustomCard2ViewModel> _mapPostsToCardViewModels(List<PostModel> posts) {
     return posts.map((post) {
       return CustomCard2ViewModel(
+        id: post.id,
         title: post.title,
         price: post.price,
         description: post.description,
@@ -51,6 +52,10 @@ class _ProductAllScreenState extends State<ProductAllScreen> {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text('Comprar ${post.title}')));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => DetalScreen(produto: post)),
+          );
         },
       );
     }).toList();
@@ -59,7 +64,9 @@ class _ProductAllScreenState extends State<ProductAllScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(brandName: 'Loja'),
+      backgroundColor: kBackgroundColor,
+      appBar: CustomAppBar(brandName: "Todos os Produtos"),
+      drawer: buildAppDrawer(context),
       body: Column(
         children: [
           Padding(

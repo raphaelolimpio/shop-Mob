@@ -1,19 +1,49 @@
-// lib/DS/components/cards/card_Custom/custom_card.dart (AJUSTES FINOS DE ALINHAMENTO)
 import 'package:flutter/material.dart';
 import 'package:loja/DS/components/cards/card_Custom/custom_card_view_model.dart';
+import 'package:loja/DS/components/reactiveTask/reactive_task.dart';
+
 import 'package:loja/DS/shared/color/colors.dart';
 import 'package:loja/DS/shared/style/style.dart';
+import 'package:loja/utils/service/cart_service.dart';
+import 'package:loja/utils/service/favorite_service.dart';
 
-class CustomCard extends StatelessWidget {
+class CustomCard extends StatefulWidget {
   final CustomCardViewModel viewModel;
   final double? cardWidth;
 
   const CustomCard({super.key, required this.viewModel, this.cardWidth});
 
   @override
+  State<CustomCard> createState() => _CustomCardState();
+}
+
+class _CustomCardState extends State<CustomCard> {
+  late Future<bool> _isFavoritedFuture;
+  late Future<bool> _isInCartFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFavoriteStatus();
+    _checkCartStatus();
+  }
+
+  void _checkFavoriteStatus() {
+    setState(() {
+      _isFavoritedFuture = FavoriteService.isFavorite(widget.viewModel.id);
+    });
+  }
+
+  void _checkCartStatus() {
+    setState(() {
+      _isInCartFuture = CartService.isInCart(widget.viewModel.id);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      width: cardWidth,
+      width: widget.cardWidth,
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       decoration: BoxDecoration(
         color: kFontColorWhite,
@@ -29,15 +59,14 @@ class CustomCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        // mainAxisSize: MainAxisSize.min, // Pode remover se a altura do card for fixa
         children: [
           SizedBox(
-            height: 200, // Altura fixa para a área da imagem
+            height: 200,
             width: double.infinity,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(0),
               child: Image.network(
-                viewModel.image,
+                widget.viewModel.image,
                 fit: BoxFit.contain,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
@@ -48,7 +77,7 @@ class CustomCard extends StatelessWidget {
                               ? loadingProgress.cumulativeBytesLoaded /
                                   loadingProgress.expectedTotalBytes!
                               : null,
-                      valueColor: AlwaysStoppedAnimation<Color>(
+                      valueColor: const AlwaysStoppedAnimation<Color>(
                         kPrimaryAppColor,
                       ),
                     ),
@@ -68,23 +97,18 @@ class CustomCard extends StatelessWidget {
             ),
           ),
 
-          // Área de detalhes do produto (título, categoria, preço, botão)
           Expanded(
-            // Use Expanded para que esta seção ocupe o espaço restante
             child: Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(15.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment:
-                    MainAxisAlignment
-                        .spaceBetween, // Distribui o espaço entre os filhos
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
-                    // Agrupa título e categoria
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        viewModel.title,
+                        widget.viewModel.title,
                         style: normalStyle.copyWith(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
@@ -93,11 +117,115 @@ class CustomCard extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(
-                        height: 4,
-                      ), // Espaçamento pequeno entre título e categoria
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          FutureBuilder<bool>(
+                            future: _isFavoritedFuture,
+                            builder: (context, snapshot) {
+                              bool isFavorited = snapshot.data ?? false;
+                              return IconButton(
+                                icon: Icon(
+                                  isFavorited
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () async {
+                                  if (isFavorited) {
+                                    final removedItem =
+                                        await FavoriteService.removeFavorite(
+                                          widget.viewModel.id,
+                                        );
+                                    if (removedItem != null) {
+                                      ReactiveTask.showUndoSnackBar(
+                                        context: context,
+                                        message: 'Item removido dos favoritos.',
+                                        onUndo: () async {
+                                          await FavoriteService.addFavorite(
+                                            removedItem,
+                                          );
+                                          _checkFavoriteStatus();
+                                        },
+                                      );
+                                      _checkFavoriteStatus();
+                                    }
+                                  } else {
+                                    await FavoriteService.addFavorite(
+                                      widget.viewModel.toPostModel(),
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Adicionado aos favoritos!',
+                                        ),
+                                      ),
+                                    );
+                                    _checkFavoriteStatus();
+                                  }
+                                },
+                                tooltip:
+                                    isFavorited ? 'Desfavoritar' : 'Favoritar',
+                              );
+                            },
+                          ),
+                          FutureBuilder<bool>(
+                            future: _isInCartFuture,
+                            builder: (context, snapshot) {
+                              bool isInCart = snapshot.data ?? false;
+                              return IconButton(
+                                icon: Icon(
+                                  isInCart
+                                      ? Icons.shopping_cart
+                                      : Icons.shopping_cart_outlined,
+                                  color: Colors.blue,
+                                ),
+                                onPressed: () async {
+                                  if (isInCart) {
+                                    final removedItem =
+                                        await CartService.removeFromCart(
+                                          widget.viewModel.id,
+                                        );
+                                    if (removedItem != null) {
+                                      ReactiveTask.showUndoSnackBar(
+                                        context: context,
+                                        message: 'Item removido do carrinho.',
+                                        onUndo: () async {
+                                          await CartService.addToCart(
+                                            removedItem,
+                                          );
+                                          _checkCartStatus();
+                                        },
+                                      );
+                                      _checkCartStatus();
+                                    }
+                                  } else {
+                                    await CartService.addToCart(
+                                      widget.viewModel.toPostModel(),
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Adicionado ao carrinho!',
+                                        ),
+                                      ),
+                                    );
+                                    _checkCartStatus();
+                                  }
+                                },
+                                tooltip:
+                                    isInCart
+                                        ? 'Remover do carrinho'
+                                        : 'Adicionar ao carrinho',
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 1),
                       Text(
-                        viewModel.category.toUpperCase(),
+                        widget.viewModel.category.toUpperCase(),
                         style: smallStyle.copyWith(
                           fontSize: 11,
                           color: kGray500,
@@ -109,19 +237,16 @@ class CustomCard extends StatelessWidget {
                     ],
                   ),
 
-                  // Separador entre info e preço (opcional, se quiser mais espaço)
-                  // const SizedBox(height: 8),
                   Text(
-                    'R\$ ${viewModel.price.toStringAsFixed(2)}',
+                    'R\$ ${widget.viewModel.price.toStringAsFixed(2)}',
                     style: priceStyle.copyWith(fontSize: 16),
                   ),
 
-                  // O SizedBox(height: 10) antes do botão será removido
-                  // pois mainAxisAlignment.spaceBetween já cuida do espaçamento
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton(
-                      onPressed: () => viewModel.onButtonPressed(context),
+                      onPressed:
+                          () => widget.viewModel.onButtonPressed(context),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: kDeepNavyBlue2,
                         side: const BorderSide(color: kDeepNavyBlue2, width: 1),
@@ -135,7 +260,7 @@ class CustomCard extends StatelessWidget {
                           letterSpacing: 0.5,
                         ),
                       ),
-                      child: Text(viewModel.buttonText),
+                      child: Text(widget.viewModel.buttonText),
                     ),
                   ),
                 ],

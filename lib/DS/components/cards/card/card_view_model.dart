@@ -1,21 +1,35 @@
+import 'package:flutter/material.dart';
 import 'package:loja/DS/components/cards/base/base_card_view_model.dart';
+import 'package:loja/utils/post/post_model.dart';
 
-class CardViewMode extends BaseCardViewModel {
+class CardViewModel extends BaseCardViewModel {
+  final int id;
   final String title;
-  final String subtitle;
-  final String? imageUrl;
-  final Function()? onTap;
-  final double value;
-  final Function()? onDecrease;
-  final Function()? onMoreOptions;
+  final double price;
+  final String description;
+  final String category;
+  final String image;
+  final String? buttonText;
+  final void Function(BuildContext context)? onButtonPressed;
 
-  CardViewMode({
+  CardViewModel({
+    required this.id,
     required this.title,
-    required this.subtitle,
-    this.imageUrl,
-    required this.value,
-    this.onTap,
-    this.onDecrease,
-    this.onMoreOptions,
+    required this.description,
+    required this.category,
+    required this.image,
+    required this.price,
+    required this.buttonText,
+    required this.onButtonPressed,
   });
+  PostModel toPostModel() {
+    return PostModel(
+      id: id,
+      title: title,
+      price: price,
+      description: description,
+      category: category,
+      image: image,
+    );
+  }
 }

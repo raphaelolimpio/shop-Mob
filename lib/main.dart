@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:loja/screens/Product_all_screen.dart';
+import 'package:loja/utils/routes/routes_manage.dart';
 
-import 'package:loja/screens/product_screen.dart';
-
-void main() {
-  runApp(MaterialApp(home: ProductsScreen()));
+void main() async {
+  runApp(const RouterManager());
 }

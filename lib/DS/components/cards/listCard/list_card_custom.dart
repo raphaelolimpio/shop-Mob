@@ -1,3 +1,4 @@
+import 'dart:math' as Math;
 import 'package:flutter/material.dart';
 import 'package:loja/DS/components/cards/card_curstom2/custom_card2.dart';
 import 'package:loja/DS/components/cards/card_curstom2/custom_card2_view_model.dart';
@@ -14,31 +15,34 @@ class ListCard extends StatelessWidget {
   final List<BaseCardViewModel> cards;
   final CardModelType cardModelType;
   final CardDisplayMode displayMode;
+  final double? listHeight;
+  final ScrollController? scrollController;
 
   const ListCard({
     super.key,
     required this.cards,
     this.cardModelType = CardModelType.defaultCard,
     this.displayMode = CardDisplayMode.verticalList,
+    this.listHeight,
+    this.scrollController,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Definir uma largura padrão para cards em rolagem horizontal
-    // AJUSTE ESTE VALOR CONFORME O TAMANHO DESEJADO PARA SEUS CARDS HORIZONTAIS
-    final double horizontalCardWidth = 280.0; // Exemplo de largura
+    final screenWidth = MediaQuery.of(context).size.width;
+    final double responsiveCardWidth = screenWidth * 0.75;
+    final double responsiveCardMax = Math.min(screenWidth * 0.75, 250.0);
 
-    // Função auxiliar para renderizar o widget do card correto
     Widget _buildCardWidget(BaseCardViewModel viewModel) {
       switch (cardModelType) {
         case CardModelType.defaultCard:
-          if (viewModel is CardViewMode) {
-            return DefaultCardWidget.CustomCards(
+          if (viewModel is CardViewModel) {
+            return DefaultCardWidget.ProductCard(
               viewModel: viewModel,
               cardWidth:
                   displayMode == CardDisplayMode.horizontalScroll
-                      ? horizontalCardWidth // Passa a largura para cards horizontais
-                      : null, // Não define largura para lista vertical
+                      ? responsiveCardWidth
+                      : null,
             );
           }
           return Text('Erro: ViewModel inesperado para Default Card');
@@ -48,8 +52,8 @@ class ListCard extends StatelessWidget {
               viewModel: viewModel,
               cardWidth:
                   displayMode == CardDisplayMode.horizontalScroll
-                      ? horizontalCardWidth // Passa a largura para cards horizontais
-                      : null, // Não define largura para lista vertical
+                      ? responsiveCardMax
+                      : null,
             );
           }
           return Text('Erro: ViewModel inesperado para Custom Card');
@@ -59,8 +63,8 @@ class ListCard extends StatelessWidget {
               viewModel: viewModel,
               cardWidth:
                   displayMode == CardDisplayMode.horizontalScroll
-                      ? horizontalCardWidth // Passa a largura para cards horizontais
-                      : null, // Não define largura para lista vertical
+                      ? responsiveCardWidth
+                      : null,
             );
           }
           return Text('Erro: ViewModel inesperado para Custom Card');
@@ -76,19 +80,25 @@ class ListCard extends StatelessWidget {
         },
       );
     } else {
-      // displayMode == CardDisplayMode.horizontalScroll
       return SizedBox(
-        height: 180, // Mantenha a altura definida para o ListView horizontal
-        child: ListView.builder(
-          padding: const EdgeInsets.all(8),
-          scrollDirection: Axis.horizontal,
-          itemCount: cards.length,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.only(right: 12.0),
-              child: _buildCardWidget(cards[index]),
-            );
-          },
+        height: listHeight ?? 420,
+        child: RawScrollbar(
+          controller: scrollController,
+          thumbVisibility: false,
+          child: ListView.builder(
+            controller: scrollController,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            scrollDirection: Axis.horizontal,
+            itemCount: cards.length,
+            shrinkWrap: true,
+            physics: const ClampingScrollPhysics(),
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: _buildCardWidget(cards[index]),
+              );
+            },
+          ),
         ),
       );
     }
