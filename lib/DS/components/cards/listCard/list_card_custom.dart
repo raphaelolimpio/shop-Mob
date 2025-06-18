@@ -31,7 +31,7 @@ class ListCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final double responsiveCardWidth = screenWidth * 0.75;
-    final double responsiveCardMax = Math.min(screenWidth * 0.75, 250.0);
+    final double responsiveCardMax = Math.min(screenWidth * 0.75, 300.0);
 
     Widget _buildCardWidget(BaseCardViewModel viewModel) {
       switch (cardModelType) {
@@ -84,7 +84,7 @@ class ListCard extends StatelessWidget {
         height: listHeight ?? 420,
         child: RawScrollbar(
           controller: scrollController,
-          thumbVisibility: false,
+          thumbVisibility: true,
           child: ListView.builder(
             controller: scrollController,
             padding: const EdgeInsets.symmetric(horizontal: 16.0),

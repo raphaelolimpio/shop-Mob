@@ -41,22 +41,10 @@ class _CustomCardState extends State<CustomCard> {
   }
 
   @override
-  /*************  ✨ Windsurf Command ⭐  *************/
-  /// Builds the UI for the custom card widget.
-  ///
-  /// The widget is structured with a [Container] that holds an image at the top,
-  /// a title, category, and price in the middle, and action buttons for
-  /// favoriting and adding to cart at the bottom. The image is fetched from a
-  /// network source and includes loading and error handling. The title and
-  /// category are displayed with specific styles, and the price is formatted
-  /// as currency. Action buttons are included to handle favorite and cart
-  /// actions, with appropriate icon changes and tooltips based on the item
-  /// status. The widget's width is adjustable via [widget.cardWidth].
-  /*******  3c41d3a2-2477-4962-bcef-bf1bbf2f4bc4  *******/
   Widget build(BuildContext context) {
     return Container(
       width: widget.cardWidth,
-      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+      margin: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 3.0),
       decoration: BoxDecoration(
         color: kFontColorWhite,
         borderRadius: BorderRadius.circular(0),
@@ -69,48 +57,47 @@ class _CustomCardState extends State<CustomCard> {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: 200,
-            width: double.infinity,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(0),
-              child: Image.network(
-                widget.viewModel.image,
-                fit: BoxFit.contain,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value:
-                          loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                              : null,
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        kPrimaryAppColor,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 200,
+              width: double.infinity,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(0),
+                child: Image.network(
+                  widget.viewModel.image,
+                  fit: BoxFit.contain,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value:
+                            loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          kPrimaryAppColor,
+                        ),
                       ),
-                    ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: kGray200,
-                    child: const Icon(
-                      Icons.broken_image,
-                      color: kGray500,
-                      size: 50,
-                    ),
-                  );
-                },
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: kGray200,
+                      child: const Icon(
+                        Icons.broken_image,
+                        color: kGray500,
+                        size: 50,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-
-          Expanded(
-            child: Padding(
+            Padding(
               padding: const EdgeInsets.all(15.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,7 +255,7 @@ class _CustomCardState extends State<CustomCard> {
                         ),
                         textStyle: smallStyle.copyWith(
                           fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                          fontSize: 10,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -278,8 +265,8 @@ class _CustomCardState extends State<CustomCard> {
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

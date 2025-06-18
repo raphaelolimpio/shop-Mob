@@ -28,7 +28,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
   void initState() {
     super.initState();
     Loading(color: kBlueColor);
-
     _productsFuture = Service.getPosts();
   }
 
@@ -219,7 +218,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                 listHeight: 420,
                                 scrollController: _scrollController,
                               ),
-                            ),
+                            ) /*
                             Positioned(
                               left: 0,
                               child: IconButton(
@@ -255,7 +254,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                   );
                                 },
                               ),
-                            ),
+                            ),*/,
                           ],
                         ),
                         const SizedBox(height: 40),
