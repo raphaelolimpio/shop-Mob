@@ -147,7 +147,7 @@ class _ProductAllScreenState extends State<ProductAllScreen> {
                   } else {
                     return Center(
                       child: Text(
-                        'Falha na API: ${apiResponse.statusCode} - ${apiResponse ?? "Erro desconhecido"}',
+                        'Falha na API: ${apiResponse.statusCode} - $apiResponse',
                         textAlign: TextAlign.center,
                       ),
                     );

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:loja/DS/components/loading/loading.dart';
+import 'package:loja/DS/shared/color/colors.dart';
 
 class CreativeLoading extends StatefulWidget {
   final Color color;
@@ -100,6 +102,12 @@ class _CreativeLoadingState extends State<CreativeLoading>
               ),
             ),
           ],
+          ElevatedButton(
+            onPressed: () {
+              Loading(color: kGreen200);
+            },
+            child: const Text("Tentar novamente"),
+          ),
         ],
       ),
     );

@@ -28,6 +28,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   void initState() {
     super.initState();
     Loading(color: kBlueColor);
+
     _productsFuture = Service.getPosts();
   }
 

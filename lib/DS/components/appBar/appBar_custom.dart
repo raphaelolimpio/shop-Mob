@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:loja/DS/components/cards/enum/AppPage.dart';
+import 'package:loja/DS/components/appBar/enumRout/AppPage.dart';
 import 'package:loja/DS/shared/color/colors.dart';
 import 'package:loja/DS/shared/style/style.dart';
-import 'package:loja/screens/Favoricts_screen.dart';
-import 'package:loja/screens/buy_Screen.dart';
-import 'package:loja/screens/history_screen%20.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String brandName;
@@ -24,8 +21,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    // Define um limite mínimo de largura para o conteúdo do AppBar
     final minWidth = 320.0;
 
     return AppBar(
@@ -87,7 +82,7 @@ Drawer buildAppDrawer(BuildContext context) {
             leading: Icon(page.icon),
             title: Text(page.label),
             onTap: () {
-              Navigator.of(context).pop(); // Fecha o Drawer
+              Navigator.of(context).pop();
               Navigator.of(
                 context,
               ).pushReplacement(MaterialPageRoute(builder: (_) => page.page));

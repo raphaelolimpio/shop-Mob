@@ -32,7 +32,7 @@ class DatabaseConfig {
           )
         ''');
         await db.execute('''
-          CREATE TABLE cart_items (
+          CREATE TABLE wallet (
             id INTEGER PRIMARY KEY,
             title TEXT,
             price REAL,
